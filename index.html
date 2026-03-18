@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw — Managed AI for Executives</title>
+  <meta name="description" content="OpenClaw configures, trains, and manages a personal AI assistant built around you. You don't learn new software. You just get your time back.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* =============================================
+       TOKENS
+       ============================================= */
+    :root {
+      --cream:       #F5F0E8;
+      --green:       #1C3A2E;
+      --green-light: #2A5440;
+      --gold:        #C9A84C;
+      --gold-hover:  #B8963D;
+      --text:        #1A1A1A;
+      --text-muted:  #5C5750;
+      --stone:       #D9D0C0;
+      --stone-light: #EAE4D9;
+      --white:       #FDFBF7;
+
+      --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --font-sans:  'Inter', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      --max-width:  1200px;
+      --section-py: clamp(80px, 12vw, 160px);
+    }
+
+    /* =============================================
+       RESET & BASE
+       ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      color: var(--text);
+      background: var(--cream);
+      line-height: 1.7;
+      font-weight: 400;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+    /* =============================================
+       TYPOGRAPHY
+       ============================================= */
+    .eyebrow {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--text);
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 6vw, 4.5rem);
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      letter-spacing: -0.015em;
+    }
+
+    h3 {
+      font-size: clamp(1.3rem, 2.2vw, 1.6rem);
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      font-size: clamp(1rem, 1.1vw, 1.125rem);
+      color: var(--text-muted);
+      max-width: 640px;
+    }
+
+    /* =============================================
+       LAYOUT
+       ============================================= */
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 clamp(24px, 5vw, 48px);
+    }
+
+    section {
+      padding: var(--section-py) 0;
+    }
+
+    /* =============================================
+       REVEAL ANIMATIONS
+       ============================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* =============================================
+       NAV
+       ============================================= */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 0 clamp(24px, 5vw, 48px);
+      transition: background 0.4s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(245, 240, 232, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 var(--stone);
+    }
+
+    nav .nav-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: 500;
+      color: var(--green);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-cta {
+      font-size: 0.875rem !important;
+      font-weight: 500 !important;
+      color: var(--white) !important;
+      background: var(--green);
+      padding: 10px 24px;
+      border-radius: 6px;
+      transition: background 0.25s ease !important;
+    }
+
+    .nav-cta:hover {
+      background: var(--green-light) !important;
+    }
+
+    /* Mobile nav toggle */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 8px;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: var(--text);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* =============================================
+       BUTTONS
+       ============================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      padding: 14px 32px;
+      border-radius: 6px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      letter-spacing: 0.01em;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: var(--green-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(28, 58, 46, 0.2);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1.5px solid var(--stone);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text-muted);
+      transform: translateY(-1px);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* =============================================
+       HERO
+       ============================================= */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 72px;
+      position: relative;
+    }
+
+    .hero-content {
+      max-width: 780px;
+    }
+
+    .hero h1 {
+      margin-bottom: 1.75rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--green);
+    }
+
+    .hero p {
+      font-size: clamp(1.05rem, 1.3vw, 1.2rem);
+      line-height: 1.75;
+      margin-bottom: 2.5rem;
+      max-width: 560px;
+    }
+
+    .hero .social-proof {
+      margin-top: 2rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .hero-line {
+      position: absolute;
+      bottom: 0;
+      left: clamp(24px, 5vw, 48px);
+      right: clamp(24px, 5vw, 48px);
+      height: 1px;
+      background: var(--stone);
+    }
+
+    /* =============================================
+       PROBLEM
+       ============================================= */
+    .problem {
+      background: var(--white);
+    }
+
+    .problem h2 {
+      margin-bottom: 1.75rem;
+      max-width: 700px;
+    }
+
+    .problem > .container > p {
+      margin-bottom: 3.5rem;
+    }
+
+    .tension-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 3.5rem;
+    }
+
+    .tension-card {
+      padding: 36px 32px;
+      border: 1px solid var(--stone);
+      border-radius: 10px;
+      background: var(--cream);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .tension-card:hover {
+      border-color: var(--stone-light);
+      box-shadow: 0 8px 40px rgba(28, 58, 46, 0.04);
+    }
+
+    .tension-card p {
+      font-family: var(--font-serif);
+      font-size: 1.125rem;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.55;
+      max-width: none;
+    }
+
+    /* =============================================
+       SOLUTION
+       ============================================= */
+    .solution h2 {
+      max-width: 660px;
+      margin-bottom: 1.75rem;
+    }
+
+    .solution > .container > p {
+      margin-bottom: 1rem;
+    }
+
+    .outcomes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 40px;
+      margin-top: 4rem;
+      padding-top: 4rem;
+      border-top: 1px solid var(--stone);
+    }
+
+    .outcome h3 {
+      margin-bottom: 0.75rem;
+      color: var(--green);
+    }
+
+    .outcome p {
+      font-size: 0.9375rem;
+      line-height: 1.65;
+    }
+
+    /* =============================================
+       HOW IT WORKS
+       ============================================= */
+    .how-it-works {
+      background: var(--green);
+      color: var(--white);
+    }
+
+    .how-it-works .eyebrow {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .how-it-works h2 {
+      color: var(--white);
+      margin-bottom: 4rem;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 48px;
+    }
+
+    .step-number {
+      font-family: var(--font-serif);
+      font-size: 3rem;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 1.25rem;
+      opacity: 0.7;
+    }
+
+    .step h3 {
+      color: var(--white);
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+    }
+
+    .step p {
+      font-size: 0.9375rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.65;
+      max-width: none;
+    }
+
+    .how-it-works .note {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.875rem;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* =============================================
+       USE CASES
+       ============================================= */
+    .use-cases h2 {
+      max-width: 500px;
+      margin-bottom: 3.5rem;
+    }
+
+    .use-case-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .use-case {
+      padding: 28px 32px;
+      border-radius: 10px;
+      background: var(--white);
+      border: 1px solid var(--stone-light);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .use-case:hover {
+      border-color: var(--stone);
+      box-shadow: 0 4px 24px rgba(28, 58, 46, 0.04);
+    }
+
+    .use-case p {
+      font-family: var(--font-serif);
+      font-size: 1.0625rem;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.55;
+      max-width: none;
+    }
+
+    .use-cases .note {
+      margin-top: 3rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* =============================================
+       ANALOGY
+       ============================================= */
+    .analogy {
+      background: var(--white);
+    }
+
+    .analogy-content {
+      max-width: 720px;
+    }
+
+    .analogy h2 {
+      margin-bottom: 2rem;
+    }
+
+    .analogy p {
+      margin-bottom: 1.25rem;
+      font-size: clamp(1rem, 1.15vw, 1.125rem);
+      line-height: 1.8;
+    }
+
+    .analogy p:last-of-type {
+      font-family: var(--font-serif);
+      font-size: clamp(1.1rem, 1.3vw, 1.25rem);
+      font-style: italic;
+      color: var(--text);
+      margin-top: 2rem;
+      margin-bottom: 0;
+    }
+
+    /* =============================================
+       PRICING
+       ============================================= */
+    .pricing h2 {
+      margin-bottom: 0.75rem;
+    }
+
+    .pricing > .container > p.pricing-sub {
+      margin-bottom: 4rem;
+      font-size: 1.0625rem;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+
+    .pricing-card {
+      background: var(--white);
+      border: 1px solid var(--stone);
+      border-radius: 14px;
+      padding: 40px 36px;
+      position: relative;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .pricing-card:hover {
+      box-shadow: 0 12px 48px rgba(28, 58, 46, 0.06);
+      transform: translateY(-2px);
+    }
+
+    .pricing-card.featured {
+      border-color: var(--green);
+      border-width: 2px;
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -13px;
+      left: 36px;
+      background: var(--green);
+      color: var(--white);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 4px;
+    }
+
+    .pricing-tier {
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .pricing-amount {
+      font-family: var(--font-serif);
+      font-size: 2.5rem;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .pricing-amount span {
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .pricing-desc {
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      line-height: 1.55;
+      max-width: none;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 2.5rem;
+    }
+
+    .pricing-features li {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--stone-light);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .pricing-features li::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: var(--green);
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+
+    .pricing-card .btn {
+      width: 100%;
+      text-align: center;
+    }
+
+    .pricing-note {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      font-style: italic;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* =============================================
+       FAQ
+       ============================================= */
+    .faq {
+      background: var(--white);
+    }
+
+    .faq h2 {
+      margin-bottom: 3.5rem;
+    }
+
+    .faq-list {
+      max-width: 720px;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--stone);
+    }
+
+    .faq-question {
+      width: 100%;
+      text-align: left;
+      padding: 24px 0;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: color 0.25s ease;
+    }
+
+    .faq-question:hover {
+      color: var(--green);
+    }
+
+    .faq-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .faq-icon::before,
+    .faq-icon::after {
+      content: '';
+      position: absolute;
+      background: currentColor;
+      transition: transform 0.3s ease;
+    }
+
+    .faq-icon::before {
+      width: 14px;
+      height: 1.5px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .faq-icon::after {
+      width: 1.5px;
+      height: 14px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .faq-item.open .faq-icon::after {
+      transform: translate(-50%, -50%) rotate(90deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .faq-answer-inner {
+      padding-bottom: 24px;
+    }
+
+    .faq-answer p {
+      font-size: 0.9375rem;
+      line-height: 1.7;
+    }
+
+    /* =============================================
+       FINAL CTA
+       ============================================= */
+    .final-cta {
+      background: var(--green);
+      color: var(--white);
+      text-align: center;
+    }
+
+    .final-cta .eyebrow {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .final-cta h2 {
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+
+    .final-cta p {
+      margin: 0 auto 2.5rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+    }
+
+    .final-cta .btn-group {
+      justify-content: center;
+    }
+
+    .final-cta .btn-primary {
+      background: var(--gold);
+      color: var(--green);
+    }
+
+    .final-cta .btn-primary:hover {
+      background: var(--gold-hover);
+      box-shadow: 0 4px 20px rgba(201, 168, 76, 0.3);
+    }
+
+    .final-cta .btn-secondary {
+      color: var(--white);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .final-cta .btn-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .final-cta .reassurance {
+      margin-top: 2.5rem;
+      font-size: 0.8125rem;
+      color: rgba(255, 255, 255, 0.4);
+      font-style: italic;
+    }
+
+    /* =============================================
+       FOOTER
+       ============================================= */
+    footer {
+      background: var(--green);
+      padding: 3rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-brand {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      color: var(--white);
+    }
+
+    .footer-tagline {
+      font-size: 0.8125rem;
+      color: rgba(255, 255, 255, 0.35);
+      font-style: italic;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-links a {
+      font-size: 0.8125rem;
+      color: rgba(255, 255, 255, 0.5);
+      transition: color 0.25s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--white);
+    }
+
+    /* =============================================
+       DIVIDER
+       ============================================= */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--stone);
+    }
+
+    /* =============================================
+       RESPONSIVE
+       ============================================= */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: fixed;
+        top: 72px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--cream);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 2rem clamp(24px, 5vw, 48px);
+        gap: 0;
+        z-index: 99;
+      }
+
+      .nav-links.open {
+        display: flex;
+      }
+
+      .nav-links a {
+        font-size: 1.125rem;
+        padding: 14px 0;
+        width: 100%;
+        border-bottom: 1px solid var(--stone-light);
+      }
+
+      .nav-links .nav-cta {
+        margin-top: 1rem;
+        width: auto;
+        padding: 12px 28px;
+        border-bottom: none;
+      }
+
+      .nav-toggle {
+        display: flex;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 120px;
+        padding-bottom: 80px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+      }
+
+      .tension-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .use-case-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn-group {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .btn-group .btn {
+        width: 100%;
+      }
+
+      h1 {
+        font-size: 2.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================= NAV -->
+  <nav id="nav">
+    <div class="nav-inner">
+      <a href="#" class="logo">OpenClaw</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links" id="navLinks">
+        <a href="#how-it-works">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">Questions</a>
+        <a href="#start" class="nav-cta">Book a call</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================= HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <p class="eyebrow reveal">Managed AI for Executives</p>
+        <h1 class="reveal reveal-delay-1">Your time is the asset.<br><em>We protect it.</em></h1>
+        <p class="reveal reveal-delay-2">OpenClaw configures, trains, and manages a personal AI assistant built around you. You don't learn new software. You don't manage settings. You just get your time back.</p>
+        <div class="btn-group reveal reveal-delay-3">
+          <a href="#start" class="btn btn-primary">Book a call</a>
+          <a href="#start" class="btn btn-secondary">Join the waitlist</a>
+        </div>
+        <p class="social-proof reveal reveal-delay-4">Currently onboarding a limited number of clients.</p>
+      </div>
+    </div>
+    <div class="hero-line"></div>
+  </section>
+
+  <!-- ============================================= PROBLEM -->
+  <section class="problem">
+    <div class="container">
+      <p class="eyebrow reveal">Sound familiar?</p>
+      <h2 class="reveal reveal-delay-1">Your inbox is a second job.<br>Your calendar runs your life.<br>And somehow you're still behind.</h2>
+      <p class="reveal reveal-delay-2">You didn't build a career to spend half your day managing logistics. But that's where the time goes. Email. Scheduling. Research. Follow-ups. The work of finding information so you can do the actual work.</p>
+      <p class="reveal reveal-delay-2" style="margin-top: 1rem">You've tried the tools. You've read the articles. Maybe you've even played with AI a little. But you're not a software person and you don't have time to become one.</p>
+      <div class="tension-cards">
+        <div class="tension-card reveal reveal-delay-1">
+          <p>"I know AI could help me. I just don't know where to start."</p>
+        </div>
+        <div class="tension-card reveal reveal-delay-2">
+          <p>"I've tried the tools. They require more from me than they give back."</p>
+        </div>
+        <div class="tension-card reveal reveal-delay-3">
+          <p>"My time is worth too much to spend it configuring software."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================= SOLUTION -->
+  <section class="solution">
+    <div class="container">
+      <p class="eyebrow reveal">What we do</p>
+      <h2 class="reveal reveal-delay-1">A personal AI assistant, fully managed.<br>Built for the way you work.</h2>
+      <p class="reveal reveal-delay-2">OpenClaw is a managed service. We configure a personal AI assistant specifically for you, train it on your preferences, your communication style, and your priorities, and then maintain it over time so it keeps getting better.</p>
+      <p class="reveal reveal-delay-2" style="margin-top: 1rem">You get the outcomes. We handle the complexity.</p>
+      <p class="reveal reveal-delay-2" style="margin-top: 1rem">This isn't software you buy. It's a service you trust.</p>
+      <div class="outcomes">
+        <div class="outcome reveal reveal-delay-1">
+          <h3>Less friction.</h3>
+          <p>The things that eat your morning don't anymore.</p>
+        </div>
+        <div class="outcome reveal reveal-delay-2">
+          <h3>More clarity.</h3>
+          <p>You start each day knowing what matters, not just what's loud.</p>
+        </div>
+        <div class="outcome reveal reveal-delay-3">
+          <h3>Real capacity back.</h3>
+          <p>The kind that lets you think, not just react.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================= HOW IT WORKS -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <p class="eyebrow reveal">The onboarding</p>
+      <h2 class="reveal reveal-delay-1">Four weeks. Then it just works.</h2>
+      <div class="steps">
+        <div class="step reveal reveal-delay-1">
+          <div class="step-number">01</div>
+          <h3>The intake call</h3>
+          <p>We spend an hour learning how you work. Your priorities, your communication style, your calendar patterns, what you hate dealing with. This conversation shapes everything.</p>
+        </div>
+        <div class="step reveal reveal-delay-2">
+          <div class="step-number">02</div>
+          <h3>Configuration</h3>
+          <p>We build your assistant. Integrations, workflows, tone, context. We do this, not you. You'll have a few things to approve but nothing to configure.</p>
+        </div>
+        <div class="step reveal reveal-delay-3">
+          <div class="step-number">03</div>
+          <h3>Calibration</h3>
+          <p>Your assistant starts working. You give feedback. We adjust. By the end of week two it knows your preferences better than most assistants after six months.</p>
+        </div>
+        <div class="step reveal reveal-delay-4">
+          <div class="step-number">04</div>
+          <h3>Handoff</h3>
+          <p>You're running. Your account manager checks in monthly to make sure everything's calibrated and your assistant keeps up as your life changes.</p>
+        </div>
+      </div>
+      <p class="note reveal">Most clients feel the difference in week one.</p>
+    </div>
+  </section>
+
+  <!-- ============================================= USE CASES -->
+  <section class="use-cases">
+    <div class="container">
+      <p class="eyebrow reveal">Real use cases</p>
+      <h2 class="reveal reveal-delay-1">Things you'll actually say to it.</h2>
+      <div class="use-case-grid">
+        <div class="use-case reveal reveal-delay-1">
+          <p>"Summarize my inbox and tell me what actually needs my attention today."</p>
+        </div>
+        <div class="use-case reveal reveal-delay-2">
+          <p>"Find me three times next week to have a 30-minute call with someone in London."</p>
+        </div>
+        <div class="use-case reveal reveal-delay-1">
+          <p>"I have a 7am flight Friday. Handle everything: car, check-in reminder, hotel confirmation."</p>
+        </div>
+        <div class="use-case reveal reveal-delay-2">
+          <p>"Draft a follow-up to the meeting I had this morning. Tone should be warm but direct."</p>
+        </div>
+        <div class="use-case reveal reveal-delay-1">
+          <p>"Who is this person I'm meeting for lunch? Give me what I need to know in two minutes."</p>
+        </div>
+        <div class="use-case reveal reveal-delay-2">
+          <p>"I need to be briefed on this company before my call at 3. Go."</p>
+        </div>
+        <div class="use-case reveal reveal-delay-1">
+          <p>"Clear my Friday afternoon and hold it. No exceptions."</p>
+        </div>
+        <div class="use-case reveal reveal-delay-2">
+          <p>"I said I'd get back to someone named Marcus last week. Find it and tell me what it was about."</p>
+        </div>
+      </div>
+      <p class="note reveal">Your assistant works across email, calendar, Slack, documents, and the tools you already use.</p>
+    </div>
+  </section>
+
+  <!-- ============================================= ANALOGY -->
+  <section class="analogy">
+    <div class="container">
+      <div class="analogy-content">
+        <p class="eyebrow reveal">Why this exists</p>
+        <h2 class="reveal reveal-delay-1">You don't manage your own portfolio.</h2>
+        <p class="reveal reveal-delay-2">At some point in your career, you stopped doing your own taxes. You stopped booking your own flights through discount travel sites. You hired people who knew what they were doing, trusted them with something valuable, and got more of your life back.</p>
+        <p class="reveal reveal-delay-2">AI is at that same inflection point. The tools are powerful. But powerful tools still require someone who knows how to use them, and someone whose job it is to keep them working for you specifically.</p>
+        <p class="reveal reveal-delay-2">Your wealth manager doesn't just pick stocks. They understand your full picture, rebalance as things change, and make sure the whole thing works together. That's what we do with your AI.</p>
+        <p class="reveal reveal-delay-3">We manage it so you don't have to.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================= PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <p class="eyebrow reveal">Plans</p>
+      <h2 class="reveal reveal-delay-1">Straightforward pricing.</h2>
+      <p class="pricing-sub reveal reveal-delay-2">No contracts. No surprises.</p>
+      <div class="pricing-grid">
+        <!-- Essential -->
+        <div class="pricing-card reveal reveal-delay-1">
+          <div class="pricing-tier">Essential</div>
+          <div class="pricing-amount">$600 <span>/ month</span></div>
+          <p class="pricing-desc">For executives who want the core benefit: a sharp assistant that handles the daily noise.</p>
+          <ul class="pricing-features">
+            <li>Fully configured AI assistant</li>
+            <li>Email triage and drafting</li>
+            <li>Calendar management</li>
+            <li>Daily briefing summary</li>
+            <li>Monthly account review</li>
+            <li>Standard response time (same day)</li>
+          </ul>
+          <a href="#start" class="btn btn-secondary">Get started</a>
+        </div>
+        <!-- Pro -->
+        <div class="pricing-card featured reveal reveal-delay-2">
+          <div class="pricing-badge">Most Popular</div>
+          <div class="pricing-tier">Pro</div>
+          <div class="pricing-amount">$1,200 <span>/ month</span></div>
+          <p class="pricing-desc">For clients who want their assistant deeply integrated into how they work.</p>
+          <ul class="pricing-features">
+            <li>Everything in Essential</li>
+            <li>Dedicated account manager</li>
+            <li>Research and briefings on demand</li>
+            <li>Travel coordination</li>
+            <li>Document drafting and editing</li>
+            <li>Priority response time (2 hours)</li>
+            <li>Bi-weekly calibration sessions</li>
+          </ul>
+          <a href="#start" class="btn btn-primary">Get started</a>
+        </div>
+        <!-- Pro Plus -->
+        <div class="pricing-card reveal reveal-delay-3">
+          <div class="pricing-tier">Pro Plus</div>
+          <div class="pricing-amount">$2,500 <span>/ month</span></div>
+          <p class="pricing-desc">For clients with complex schedules, multiple ventures, or team-level needs.</p>
+          <ul class="pricing-features">
+            <li>Everything in Pro</li>
+            <li>Multi-context support (personal + ventures)</li>
+            <li>Unlimited research requests</li>
+            <li>Light team coordination support</li>
+            <li>Same-day onboarding availability</li>
+            <li>Direct line to your account manager</li>
+            <li>Quarterly strategic review</li>
+          </ul>
+          <a href="#start" class="btn btn-secondary">Get started</a>
+        </div>
+      </div>
+      <p class="pricing-note reveal">Not sure which plan fits? We'll figure it out on the call. We won't upsell you into something you don't need.</p>
+    </div>
+  </section>
+
+  <!-- ============================================= FAQ -->
+  <section class="faq" id="faq">
+    <div class="container">
+      <p class="eyebrow reveal">Questions</p>
+      <h2 class="reveal reveal-delay-1">Common questions.</h2>
+      <div class="faq-list">
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Is this just ChatGPT with extra steps?
+            <span class="faq-icon"></span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>No. Generic AI tools give you a blank page. We give you a fully configured assistant that knows your calendar, your communication style, your preferences, and your priorities, maintained by a human team. The underlying technology is powerful. The configuration is what makes it yours.</p>
+            </div>
+          </div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            What does "managed" actually mean?
+            <span class="faq-icon"></span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>It means we do the work you'd otherwise have to do yourself: integrating your tools, training the assistant on how you communicate, adjusting it as your preferences change, and keeping it sharp over time. You don't touch any of that.</p>
+            </div>
+          </div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            How long until I actually feel the difference?
+            <span class="faq-icon"></span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>Most clients notice it in the first week. The full benefit takes about 30 days, which is why we structured the onboarding the way we did. By the end of month one, it knows your patterns well enough to be genuinely useful without you managing it.</p>
+            </div>
+          </div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            What does my assistant have access to?
+            <span class="faq-icon"></span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>Only what you connect. Email, calendar, Slack, documents, whatever tools you use and choose to integrate. We ask for the minimum access we need to do the work. We document everything.</p>
+            </div>
+          </div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            What about my privacy and data security?
+            <span class="faq-icon"></span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>Your data is used only to operate your assistant. We don't train on your information. We don't share it. We use enterprise-grade security throughout. If you want the full data handling details, we'll walk you through them on the call.</p>
+            </div>
+          </div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Can I cancel anytime?
+            <span class="faq-icon"></span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>Yes. Month-to-month. No contracts. If it's not working for you, we'll handle the offboarding cleanly and make sure you have everything you need.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================= FINAL CTA -->
+  <section class="final-cta" id="start">
+    <div class="container">
+      <p class="eyebrow reveal">Ready to start</p>
+      <h2 class="reveal reveal-delay-1">Your assistant is waiting.<br>Let's get it set up.</h2>
+      <p class="reveal reveal-delay-2">The onboarding call takes about an hour. By the end of it, you'll know exactly what your assistant will handle and what the first two weeks will look like. No commitment required to have the conversation.</p>
+      <div class="btn-group reveal reveal-delay-3">
+        <a href="#" class="btn btn-primary">Book a call</a>
+        <a href="#" class="btn btn-secondary">Join the waitlist</a>
+      </div>
+      <p class="reassurance reveal reveal-delay-4">We're selective about who we take on. The call helps us make sure it's a good fit for both of us.</p>
+    </div>
+  </section>
+
+  <!-- ============================================= FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div>
+          <div class="footer-brand">OpenClaw</div>
+          <div class="footer-tagline">Your time is the asset.</div>
+        </div>
+        <div class="footer-links">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================= JS -->
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Nav scroll effect
+    const nav = document.getElementById('nav');
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    // Mobile nav toggle
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+
+    // Close mobile nav on link click
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+      });
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.parentElement;
+        const answer = item.querySelector('.faq-answer');
+        const isOpen = item.classList.contains('open');
+
+        // Close all
+        document.querySelectorAll('.faq-item.open').forEach(openItem => {
+          openItem.classList.remove('open');
+          openItem.querySelector('.faq-answer').style.maxHeight = null;
+          openItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+        });
+
+        // Open clicked (if it wasn't already open)
+        if (!isOpen) {
+          item.classList.add('open');
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
